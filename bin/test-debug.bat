@@ -1,0 +1,1 @@
+mosaicd -o mosaic.tif mosaic0001.tif mosaic0002.tif
