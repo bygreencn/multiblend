@@ -74,6 +74,10 @@ void dewhorl() {
 //if (y==1) getchar();
 		}
 		memcpy(p,g_line0,g_output_pyramid[0].pitch<<1); // needs changing for g_workbpp==16
-		p=(void*)((int)p+(g_output_pyramid[0].pitch<<1)); // needs changing for g_workbpp==16
+#ifdef _WIN32
+        p=(void*)((int)p+(g_output_pyramid[0].pitch<<1)); // needs changing for g_workbpp==16
+#else
+        p=(void*)((long)p+(g_output_pyramid[0].pitch<<1)); // needs changing for g_workbpp==16
+#endif
 	}
 }

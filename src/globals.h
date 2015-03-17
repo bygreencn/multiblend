@@ -1,32 +1,46 @@
 #ifndef __GLOBALS_INCLUDE__
 #define __GLOBALS_INCLUDE__
 
-#include "BaseTsd.h"
-
 #include "tiffio.h"
 #include "tiff.h"
 #include "png.h"
 #include "jpeglib.h"
 #include "turbojpeg.h"
 
+
+#ifndef _WIN32
+#include "malloc.h"
+#endif
+
+#ifdef _WIN32
+#include "BaseTsd.h"
 #include <Windows.h>
 #include <Winnt.h>
-
-#ifndef WIN32
+#define SNPRINTF _snprintf_s
+#else
+#include <stdio.h>
+#include "malloc.h"
+#include "stdlib.h"
+#define SNPRINTF snprintf
 void fopen_s(FILE** f,const char* filename, const char* mode);
+int _stricmp(const char* a, const char* b);
+void* _aligned_malloc(size_t size, int boundary);
+void _aligned_free(void* a);
+#define min(a,b) (((a)<(b))?(a):(b))
+#define max(a,b) (((a)>(b))?(a):(b))
 #endif
 
 void die(const char* error, ...);
 void output(int level, const char* fmt, ...);
 
-void* g_line0;
-void* g_line1;
-void* g_line2;
-void* g_linet;
+extern void* g_line0;
+extern void* g_line1;
+extern void* g_line2;
+extern void* g_linet;
 
-void* g_temp;
+extern void* g_temp;
 
-int* g_dither;
+extern int* g_dither;
 
 struct struct_indexed {
     //  int size;
@@ -81,59 +95,58 @@ struct struct_image {
     int last_strip;
 };
 
-int g_numthreads;
+extern int g_numthreads;
 
-int g_numimages=0;
-int g_workwidth=0;
-int g_workheight=0;
-int g_workbpp=0;
-int g_workbpp_cmd=0;
-int g_min_top=0;
-int g_min_left=0;
-double g_xres=-1;
-double g_yres=-1;
-int  g_levels;
-int  g_max_levels=1000000;
-int  g_sub_levels=0;
-int  g_verbosity=1;
-bool g_wideblend=false;
-bool g_seamwarning=false;
-bool g_reverse=false;
-bool g_pseudowrap=false;
-bool g_swap=false;
-bool g_save_out_pyramids=false;
-bool g_dewhorl=false;
-char* g_output_filename;
-char* g_seamload_filename;
-png_color* g_palette;
-char*   g_seamsave_filename;
-char*   g_xor_filename;
-int    g_numchannels=3;
-void** g_out_channels;
-TIFF*  g_tiff;
-FILE*  g_jpeg;
-uint16    g_compression = 1; // 赋值给(uint)tif_dir.td_compression时会产生65535，所以改变类型。
-int    g_jpegquality=-1;
-uint32* g_seams;
-bool g_timing=true;
-bool g_savemasks=false;
-bool g_nooutput=false;
-bool g_caching=false;
-//void* g_cache;
-size_t g_cache_bytes=0;
+extern int g_numimages;
+extern int g_workwidth;
+extern int g_workheight;
+extern int g_workbpp;
+extern int g_workbpp_cmd;
+extern int g_min_top;
+extern int g_min_left;
+extern double g_xres;
+extern double g_yres;
+extern int  g_levels;
+extern int  g_max_levels;
+extern int  g_sub_levels;
+extern int  g_verbosity;
+extern bool g_wideblend;
+extern bool g_seamwarning;
+extern bool g_reverse;
+extern bool g_pseudowrap;
+extern bool g_swap;
+extern bool g_save_out_pyramids;
+extern bool g_dewhorl;
+extern char* g_output_filename;
+extern char* g_seamload_filename;
+extern png_color* g_palette;
+extern char*   g_seamsave_filename;
+extern char*   g_xor_filename;
+extern int    g_numchannels;
+extern void** g_out_channels;
+extern TIFF*  g_tiff;
+extern FILE*  g_jpeg;
+extern uint16    g_compression; // 赋值给(uint)tif_dir.td_compression时会产生65535，所以改变类型。
+extern int    g_jpegquality;
+extern uint32* g_seams;
+extern bool g_timing;
+extern bool g_savemasks;
+extern bool g_nooutput;
+extern bool g_caching;
+extern size_t g_cache_bytes;
 
-struct_level* g_output_pyramid;
+extern struct_level* g_output_pyramid;
 
-bool g_crop=true;
-bool g_debug=true;
-bool g_nomask=false;
-bool g_bigtiff=false;
-bool g_bgr=false;
+extern bool g_crop;
+extern bool g_debug;
+extern bool g_nomask;
+extern bool g_bigtiff;
+extern bool g_bgr;
 
-uint32* g_edt;
+extern uint32* g_edt;
 
 #define PY(i,l) g_images[i].pyramid[l]
 
-struct_image* g_images;
+extern struct_image* g_images;
 
 #endif // #ifndef __GLOBALS_INCLUDE__

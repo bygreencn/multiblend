@@ -11,7 +11,7 @@ using namespace std;
 #endif
 #include <emmintrin.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #define NOMINMAX
 #include <Windows.h>
 #endif
@@ -31,7 +31,7 @@ using namespace std;
 #include "pseudowrap.h"
 #include "go.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #pragma comment(lib,"tiff.lib")
 #pragma comment(lib,"turbojpeg-static.lib")
 #pragma comment(lib,"libpng.lib")

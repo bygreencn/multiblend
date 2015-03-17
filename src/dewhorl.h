@@ -4,4 +4,4 @@
 void dewhorl();
 void dewhorl_old();
 
-#endif(__DEWHORL_H__)
+#endif //(__DEWHORL_H__)

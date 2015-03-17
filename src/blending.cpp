@@ -17,7 +17,7 @@ void save_out_pyramid(int c, bool collapsed) {
 	int png_height=0;
 	FILE* f;
 
-#ifdef WIN32
+#ifdef _WIN32
   sprintf_s(filename,"out_pyramid%03d.png",c);
 #else
   sprintf(filename,"out_pyramid%03d.png",c);

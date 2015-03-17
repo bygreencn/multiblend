@@ -4,7 +4,7 @@
 #include "globals.h"
 void output(int level, const char* fmt, ...);
 
-#ifdef WIN32
+#ifdef _WIN32
 class my_timer {
 public:
 	void set() {
@@ -38,16 +38,6 @@ public:
 #endif
 
 void report_time(const char* name, double time);
-
-#ifndef WIN32
-#define SNPRINTF snprintf
-int _stricmp(const char* a, const char* b) { return strcasecmp(a,b); }
-void* _aligned_malloc(size_t size, int boundary) { return memalign(boundary,size); }
-void _aligned_free(void* a) { free(a); }
-void fopen_s(FILE** f,const char* filename, const char* mode) { *f=fopen(filename,mode); }
-#else
-#define SNPRINTF _snprintf_s
-#endif
 
 void clear_temp();
 void die(const char* error, ...);

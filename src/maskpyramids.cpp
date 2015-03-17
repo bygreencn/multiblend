@@ -1,4 +1,6 @@
 #include "maskpyramids.h"
+#include "globals.h"
+
 
 void png_mask(int i) {
   int x,y;
@@ -15,7 +17,7 @@ void png_mask(int i) {
   char filename[256];
   FILE* f;
 
-#ifdef WIN32
+#ifdef _WIN32
   sprintf_s(filename,"mb_mask%03d.png",i);
 #else
   sprintf(filename,"mb_mask%03d.png",i);

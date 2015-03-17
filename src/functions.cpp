@@ -21,7 +21,7 @@ void clear_temp() {
         for (c=0; c<g_numchannels; c++) {
             if (g_images[i].channels[c].f) {
                 fclose(g_images[i].channels[c].f);
-#ifdef WIN32
+#ifdef _WIN32
                 DeleteFile((LPCTSTR)g_images[i].channels[c].filename);
 #endif
             }
@@ -43,6 +43,5 @@ void die(const char* error, ...) {
         printf("\nPress Enter to end\n");
         getchar();
     }
-
     exit(1);
 }

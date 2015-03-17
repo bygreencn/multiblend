@@ -1,6 +1,12 @@
 #include "loadimages.h"
 #include "geotiff.h"
 #include <string>
+#include "globals.h"
+
+#ifndef _WIN32
+#define min(a,b) (((a)<(b))?(a):(b))
+#define max(a,b) (((a)>(b))?(a):(b))
+#endif
 
 void trim8(void* bitmap, uint32 w, uint32 h, int bpp, int* top, int* left, int* bottom, int* right) {
   size_t p;
@@ -818,7 +824,7 @@ void load_images(char** argv, int argc) {
 	output(1,"...\n");
 
   for (i=0; i<g_numimages; i++) {
-#ifdef WIN32
+#ifdef _WIN32
     strcpy_s(g_images[i].filename,256,argv[i]);
 #else
     strncpy(g_images[i].filename,argv[i],256);
@@ -913,7 +919,7 @@ void load_images(char** argv, int argc) {
 			if (!channels[c]) die("not enough memory for cache channel %d",c);
 		}
 
-#ifdef WIN32
+#ifdef _WIN32
 		temp_path=(char*)malloc(MAX_PATH);
 		GetTempPath(MAX_PATH,temp_path);
 #endif
@@ -942,7 +948,7 @@ void load_images(char** argv, int argc) {
 		if (g_caching) {
 			for (c=0; c<g_numchannels; c++) {
 				I.channels[c].data=channels[c];
-#ifdef WIN32
+#ifdef _WIN32
 				I.channels[c].filename=(char*)malloc(MAX_PATH);
 				GetTempFileName((LPCTSTR)temp_path, "mb", 0, I.channels[c].filename);
 				if (fopen_s(&I.channels[c].f,I.channels[c].filename,"wb")) die("couldn't open channel file");
@@ -960,7 +966,7 @@ void load_images(char** argv, int argc) {
 
 		if (g_caching) for (c=0; c<g_numchannels; c++) {
 			fwrite(I.channels[c].data, temp_t, 1, I.channels[c].f);
-#ifdef WIN32
+#ifdef _WIN32
 			fclose(I.channels[c].f);
 			fopen_s(&I.channels[c].f,I.channels[c].filename,"rb"); // reopen required under Windows
 #endif

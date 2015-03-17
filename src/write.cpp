@@ -201,7 +201,7 @@ void tiff_out() {
                         p++;
                     }
                 }
-            } // ╣зр╩╡Ц 
+            } // О©╫О©╫р╩О©╫О©╫ 
             else 
             {
                 for (i=0; i<g_numimages; i++)
@@ -318,7 +318,7 @@ void tiff_out() {
                     for (i=0; i<g_numimages; i++) maskcount[i]-=mincount;
                     x+=mincount;
                 } // while
-            } // ╣зр╩╡Ц if else
+            } // О©╫О©╫р╩О©╫О©╫ if else
             y++;
         } // for loop, every strip row
 
