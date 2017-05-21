@@ -1,6 +1,7 @@
-#include "maskpyramids.h"
-#include "globals.h"
-
+union intfloat {
+	float f;
+	int i;
+};
 
 void png_mask(int i) {
   int x,y;
@@ -17,7 +18,7 @@ void png_mask(int i) {
   char filename[256];
   FILE* f;
 
-#ifdef _WIN32
+#ifdef WIN32
   sprintf_s(filename,"mb_mask%03d.png",i);
 #else
   sprintf(filename,"mb_mask%03d.png",i);

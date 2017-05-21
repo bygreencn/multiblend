@@ -1,12 +1,5 @@
 #define ACCURACY 5 // don't change this
 
-#include "png.h"
-#include "globals.h"
-#include <emmintrin.h>
-#include <stdlib.h>
-#include "loadimages.h"
-#include "maskpyramids.h"
-
 void save_out_pyramid(int c, bool collapsed) {
 	int l;
 	int p;
@@ -17,7 +10,7 @@ void save_out_pyramid(int c, bool collapsed) {
 	int png_height=0;
 	FILE* f;
 
-#ifdef _WIN32
+#ifdef WIN32
   sprintf_s(filename,"out_pyramid%03d.png",c);
 #else
   sprintf(filename,"out_pyramid%03d.png",c);
@@ -511,7 +504,7 @@ void mask_into_output(struct_level* input, float* mask, struct_level* output, bo
 				count=0;
 			} else {
 				if (g_workbpp==8)
-  				((short*)out_p)[x]+=(int)(((INT16*)input_line)[x]*pixel.f+0.5);
+  				((short*)out_p)[x]+=(int)(((int16*)input_line)[x]*pixel.f+0.5);
 				else
   				((int*)out_p)[x]+=(int)(((int*)input_line)[x]*pixel.f+0.5);
 				x++;

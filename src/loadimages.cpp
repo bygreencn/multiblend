@@ -1,12 +1,4 @@
-#include "loadimages.h"
-#include "geotiff.h"
-#include <string>
-#include "globals.h"
-
-#ifndef _WIN32
-#define min(a,b) (((a)<(b))?(a):(b))
-#define max(a,b) (((a)>(b))?(a):(b))
-#endif
+#define I g_images[i]
 
 void trim8(void* bitmap, uint32 w, uint32 h, int bpp, int* top, int* left, int* bottom, int* right) {
   size_t p;
@@ -824,7 +816,7 @@ void load_images(char** argv, int argc) {
 	output(1,"...\n");
 
   for (i=0; i<g_numimages; i++) {
-#ifdef _WIN32
+#ifdef WIN32
     strcpy_s(g_images[i].filename,256,argv[i]);
 #else
     strncpy(g_images[i].filename,argv[i],256);
@@ -872,7 +864,7 @@ void load_images(char** argv, int argc) {
 		I.first_strip=0;
 		I.last_strip=TIFFNumberOfStrips(I.tiff)-1;
 
-		if (compression!=1) {
+		if (tiff_xpos<=0 && tiff_ypos<=0 && compression!=1) {
 			minstripsize=0x7fffffff;
 			minstripcount=0;
 			for (s=0; s<(int)TIFFNumberOfStrips(I.tiff)-1; s++) {
@@ -895,7 +887,7 @@ void load_images(char** argv, int argc) {
 				if (I.first_strip==-1) I.first_strip=0;
 				if (I.last_strip==s-1) I.last_strip=s; // after loop, s==TIFFNumberOfStrips(I.tiff)-1 (i.e. last strip)
 			}
-		} else output(1,"uncompressed image; smartcropping disabled\n");
+		} // else output(1,"uncompressed image; smartcropping disabled\n");
 
     I.ypos+=I.first_strip*rowsperstrip;
 		rowsmissing=TIFFNumberOfStrips(I.tiff)*rowsperstrip-I.tiff_height;
@@ -919,7 +911,7 @@ void load_images(char** argv, int argc) {
 			if (!channels[c]) die("not enough memory for cache channel %d",c);
 		}
 
-#ifdef _WIN32
+#ifdef WIN32
 		temp_path=(char*)malloc(MAX_PATH);
 		GetTempPath(MAX_PATH,temp_path);
 #endif
@@ -948,9 +940,9 @@ void load_images(char** argv, int argc) {
 		if (g_caching) {
 			for (c=0; c<g_numchannels; c++) {
 				I.channels[c].data=channels[c];
-#ifdef _WIN32
+#ifdef WIN32
 				I.channels[c].filename=(char*)malloc(MAX_PATH);
-				GetTempFileName((LPCTSTR)temp_path, "mb", 0, I.channels[c].filename);
+				GetTempFileName(temp_path,"mb",0,I.channels[c].filename);
 				if (fopen_s(&I.channels[c].f,I.channels[c].filename,"wb")) die("couldn't open channel file");
 #else
 				I.channels[c].f=tmpfile();
@@ -966,7 +958,7 @@ void load_images(char** argv, int argc) {
 
 		if (g_caching) for (c=0; c<g_numchannels; c++) {
 			fwrite(I.channels[c].data, temp_t, 1, I.channels[c].f);
-#ifdef _WIN32
+#ifdef WIN32
 			fclose(I.channels[c].f);
 			fopen_s(&I.channels[c].f,I.channels[c].filename,"rb"); // reopen required under Windows
 #endif

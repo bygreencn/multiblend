@@ -1,6 +1,3 @@
-#include "pseudowrap.h"
-#include "globals.h"
-
 void pseudowrap_split() {
 	int c;
 	int y;

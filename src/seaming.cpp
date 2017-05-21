@@ -1,5 +1,8 @@
-#include "seaming.h"
-#include "globals.h"
+#define NEXTiMASK(i) { temp=*g_images[i].binary_mask.pointer++; maskcount[i]=temp&0x7fffffff; mask[i]=~temp&0x80000000; }
+#define PREViMASK(i) { temp=*--g_images[i].binary_mask.pointer; maskcount[i]=temp&0x7fffffff; mask[i]=~temp&0x80000000; }
+
+#define MASKON 0
+#define MASKOFF 0x80000000
 
 void seam_png(int mode, const char* filename) {
   int x;
@@ -26,19 +29,17 @@ void seam_png(int mode, const char* filename) {
 
 		for (i=0; i<255; i++) {
 			rad=base;
-			// max<double>, min<double>
-			r=max((double)0, (double)min((double)1.0, (double)min((double)rad, (double)(4-rad))));
+			r=max<double>(0,min<double>(1.0,min<double>(rad,4-rad)));
 			rad+=2; if (rad>=6) rad-=6;
-			g=max ((double)0, (double)min((double)1.0, (double)min((double)rad, (double)(4-rad))));
+			g=max<double>(0,min<double>(1.0,min<double>(rad,4-rad)));
 			rad+=2; if (rad>=6) rad-=6;
-			b=max((double)0, (double)min((double)1.0, (double)min((double)rad, (double)(4-rad))));
+			b=max<double>(0,min<double>(1.0,min<double>(rad,4-rad)));
 			base+=6*0.618033988749895;
 			if (base>=6) base-=6;
-			g_palette[i].red=(int)(r*255+0.5);
+      g_palette[i].red=(int)(r*255+0.5);
 			g_palette[i].green=(int)(g*255+0.5);
 			g_palette[i].blue=(int)(b*255+0.5);
 		}
-
 		g_palette[i].red=0;
 		g_palette[i].green=0;
 		g_palette[i].blue=0;
@@ -124,7 +125,7 @@ void seam_png(int mode, const char* filename) {
     }
   }
 
-  if (mode==1) {
+  else if (mode==1) {
     seam_p=g_seams;
 
     for (y=0; y<g_workheight; y++) {
@@ -521,10 +522,50 @@ void leftupxy() {
 	}
 }
 
+void simple_seam() {
+	int i;
+	int x,y;
+	int p=0;
+	int dy;
+	int max;
+	int best;
+	size_t size=(g_numimages*g_workheight)<<2;
+
+	g_seams=(uint32*)malloc(size*sizeof(uint32));
+
+	for (i=0; i<g_numimages; i++) {
+		g_images[i].cx=(int)(g_images[i].xpos+g_images[i].width*0.5);
+		g_images[i].cy=(int)(g_images[i].ypos+g_images[i].height*0.5);
+	}
+
+	for (y=0; y<g_workheight; y++) {
+    for (i=0; i<g_numimages; i++) {
+			if (g_images[i].ypos<y || g_images[i].ypos+g_images[i].height>=y) { g_images[i].d=-1; continue; }
+			g_images[i].dx=-g_images[i].cx;
+			dy=g_images[i].cy-y;
+			g_images[i].d=g_images[i].cx*g_images[i].cx+dy*dy;
+		}
+
+		for (x=0; x<g_workwidth; x++) {
+			max=0x7fffffff;
+			best=255; // default to a non image
+			for (i=0; i<g_numimages; i++) {
+				if (g_images[i].d==-1) continue;
+				if (g_images[i].d<max) {
+					best=i;
+					max=g_images[i].d;
+				}
+				g_images[i].d+=(g_images[i].dx*2)+1;
+				g_images[i].dx++;
+			}
+		}
+	}
+}
+
 void make_seams() {
 	int x,y;
 	int p=0;
-	int size;
+	size_t size;
 	int count=1;
 	int a,b;
 	uint32* line;
@@ -551,7 +592,7 @@ void make_seams() {
 
 //		if ((p+(g_workwidth<<3))>size) {
 //			size+=g_workwidth<<4;
-		if ((p+((g_numimages*g_workheight)<<1))>size) {
+		if ((size_t)(p+((g_numimages*g_workheight)<<1))>size) {
 			size+=(g_numimages*g_workheight)<<2;
 			g_seams=(uint32*)realloc(g_seams,size*sizeof(uint32));
 		}
@@ -567,16 +608,21 @@ void seam() {
 	for (i=0; i<g_numimages; i++) g_images[i].seampresent=false;
 
   if (!g_seamload_filename) {
-  	g_edt=(uint32*)_aligned_malloc(g_workwidth*g_workheight*sizeof(uint32),0); // if malloc fails fall back on dtcomp
-
-  	if (!g_edt) die("not enough memory to create seams");
-
-	  leftupxy();
-	  rightdownxy();
-
     if (g_xor_filename) seam_png(0,g_xor_filename);
 
-  	make_seams();
+		if (!g_simpleseam) {
+  		g_edt=(uint32*)_aligned_malloc(g_workwidth*g_workheight*sizeof(uint32),0); // if malloc fails fall back on dtcomp
+
+  		if (!g_edt) die("not enough memory to create seams");
+
+			leftupxy();
+			rightdownxy();
+    	make_seams();
+
+			_aligned_free(g_edt);
+		} else {
+			simple_seam();
+		}
 
     if (g_seamsave_filename) seam_png(1,g_seamsave_filename);
 
@@ -587,7 +633,7 @@ void seam() {
       }
 	  }
 	  if (g_seamwarning) printf("WARNING: some image areas have been arbitrarily assigned\n");
-  } else {
+	} else {
     load_seams();
 
     for (i=0; i<g_numimages; i++) {
@@ -597,6 +643,4 @@ void seam() {
       }
     }
   }
-
-	_aligned_free(g_edt);
 }
